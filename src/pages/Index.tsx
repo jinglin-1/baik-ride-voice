@@ -111,14 +111,7 @@ const Index = () => {
       <header className="h-16 px-4 flex items-center">
         <div className="grid grid-cols-3 items-center w-full">
           <div />
-          <div className="flex items-center justify-center">
-            <img
-              src="/lovable-uploads/fad0ebad-1ecd-45e4-b861-211a6115ef9a.png"
-              alt="Baik logo - AI cycling assistant"
-              className="h-8 w-auto"
-              loading="eager"
-            />
-          </div>
+          <div />
           <div className="flex justify-end">
             <Button
               variant="destructive"
@@ -137,6 +130,12 @@ const Index = () => {
       <main className="flex-1 flex items-center justify-center bg-app-gradient">
         <section className="w-full max-w-xl mx-auto px-6 py-14 text-center select-none">
           <h1 className="sr-only">Baik – AI Cycling Assistant</h1>
+          <img
+            src="/lovable-uploads/fad0ebad-1ecd-45e4-b861-211a6115ef9a.png"
+            alt="Baik logo - AI cycling assistant"
+            className="mx-auto mb-8 h-20 md:h-24 w-auto"
+            loading="eager"
+          />
           <p
             className={`text-lg md:text-xl mb-10 ${statusClass}`}
             aria-live="polite"
