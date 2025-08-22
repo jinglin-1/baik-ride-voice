@@ -172,7 +172,7 @@ const Index = () => {
               ) : state === "speaking" ? (
                 <span className="text-white font-semibold">Speaking...</span>
               ) : (
-                <Mic className="size-16 text-accent" aria-hidden="true" />
+                <Mic className="size-20 text-white" aria-hidden="true" />
               )}
             </Button>
           </div>
