@@ -28,11 +28,23 @@ const Index = () => {
       case "connecting":
         return "Connecting...";
       case "listening":
-        return "Listening...";
+        return "Listening... Tap to end conversation";
       case "speaking":
         return "Baik is responding...";
       default:
         return "Ready to help plan your ride";
+    }
+  }, [state]);
+
+  const getAriaLabel = useMemo(() => {
+    switch (state) {
+      case "listening":
+        return "End conversation";
+      case "connecting":
+      case "speaking":
+        return "Please wait";
+      default:
+        return "Start talking to Baik";
     }
   }, [state]);
 
@@ -83,6 +95,15 @@ const Index = () => {
     }
   }
 
+  async function handleMicButtonClick() {
+    if (state === "idle") {
+      await startCall();
+    } else if (state === "listening") {
+      await endCall();
+    }
+    // Do nothing for connecting/speaking states
+  }
+
   // Optional: simulate speaking state once audio response begins via widget custom events if present
   useEffect(() => {
     const widgetEl = document.querySelector("vapi-widget") as any;
@@ -107,24 +128,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="h-16 px-4 flex items-center">
-        <div className="grid grid-cols-3 items-center w-full">
-          <div />
-          <div />
-          <div className="flex justify-end">
-            <Button
-              variant="destructive"
-              size="lg"
-              className="rounded-lg"
-              onClick={endCall}
-              aria-label="End call"
-            >
-              End
-            </Button>
-          </div>
-        </div>
-      </header>
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center bg-app-gradient">
@@ -145,40 +148,33 @@ const Index = () => {
           </p>
 
           <div className="flex items-center justify-center">
-            {state === "idle" || state === "connecting" || state === "listening" ? (
-              <Button
-               variant="neonMic"
-               size="xlCircle"
-               className={`
-                 transition-all duration-300 ease-in-out
-                 ${state === "listening" ? "neon-glow-listening" : ""}
-                 ${state === "connecting" ? "neon-glow-connecting" : ""}
-                 ${state === "idle" ? "neon-glow-idle" : ""}
-               `}
-               onClick={() => state === "idle" && startCall()}
-               aria-label="Start talking to Baik"
-              >
-                {state === "connecting" ? (
-                  <div className="flex items-center gap-2 text-status-connecting">
-                    <Loader2 className="animate-spin" />
-                    Connecting...
-                  </div>
-                ) : state === "listening" ? (
-                  <span className="text-status-listening font-semibold">Listening...</span>
-                ) : (
-                  <Mic className="size-16 text-accent" aria-hidden="true" />
-                )}
-              </Button>
-            ) : (
-              <Button
-                variant="neonMic"
-                size="xlCircle"
-                className="neon-glow-speaking transition-all duration-300 ease-in-out"
-                aria-label="Baik is speaking"
-              >
+            <Button
+             variant="neonMic"
+             size="xlCircle"
+             className={`
+               transition-all duration-300 ease-in-out
+               ${state === "listening" ? "neon-glow-listening" : ""}
+               ${state === "connecting" ? "neon-glow-connecting opacity-75 cursor-not-allowed" : ""}
+               ${state === "speaking" ? "neon-glow-speaking opacity-75 cursor-not-allowed" : ""}
+               ${state === "idle" ? "neon-glow-idle" : ""}
+             `}
+             onClick={handleMicButtonClick}
+             disabled={state === "connecting" || state === "speaking"}
+             aria-label={getAriaLabel}
+            >
+              {state === "connecting" ? (
+                <div className="flex items-center gap-2 text-status-connecting">
+                  <Loader2 className="animate-spin" />
+                  Connecting...
+                </div>
+              ) : state === "listening" ? (
+                <span className="text-status-listening font-semibold">Listening...</span>
+              ) : state === "speaking" ? (
                 <span className="text-white font-semibold">Speaking...</span>
-              </Button>
-            )}
+              ) : (
+                <Mic className="size-16 text-accent" aria-hidden="true" />
+              )}
+            </Button>
           </div>
         </section>
       </main>
