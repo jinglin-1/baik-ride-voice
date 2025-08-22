@@ -147,13 +147,16 @@ const Index = () => {
           <div className="flex items-center justify-center">
             {state === "idle" || state === "connecting" || state === "listening" ? (
               <Button
-                variant="mic"
-                size="xlCircle"
-                className={`transition-transform duration-300 will-change-transform ${
-                  state === "listening" ? "ring-4 ring-primary/30" : ""
-                } hover:scale-105 active:scale-95`}
-                onClick={() => state === "idle" && startCall()}
-                aria-label="Start talking to Baik"
+               variant="neonMic"
+               size="xlCircle"
+               className={`
+                 transition-all duration-300 ease-in-out
+                 ${state === "listening" ? "neon-glow-listening" : ""}
+                 ${state === "connecting" ? "neon-glow-connecting" : ""}
+                 ${state === "idle" ? "neon-glow-idle" : ""}
+               `}
+               onClick={() => state === "idle" && startCall()}
+               aria-label="Start talking to Baik"
               >
                 {state === "connecting" ? (
                   <div className="flex items-center gap-2 text-status-connecting">
@@ -168,12 +171,12 @@ const Index = () => {
               </Button>
             ) : (
               <Button
-                variant="default"
+                variant="neonMic"
                 size="xlCircle"
-                className="transition-transform duration-300 will-change-transform hover:scale-105 active:scale-95"
+                className="neon-glow-speaking transition-all duration-300 ease-in-out"
                 aria-label="Baik is speaking"
               >
-                Speaking...
+                <span className="text-white font-semibold">Speaking...</span>
               </Button>
             )}
           </div>

@@ -20,6 +20,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         // Custom variant for large circular mic button (white surface with brand outline)
         mic: "border-2 border-primary bg-card text-primary shadow-sm hover:shadow-md hover:bg-card/90 focus-visible:ring-primary",
+        // Neon gradient variant for microphone button
+        neonMic: "neon-gradient-base text-white border-0 shadow-lg hover:scale-105 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95",
       },
       size: {
         default: "h-10 px-4 py-2",
