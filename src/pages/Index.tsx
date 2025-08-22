@@ -163,12 +163,12 @@ const Index = () => {
              aria-label={getAriaLabel}
             >
               {state === "connecting" ? (
-                <div className="flex items-center gap-2 text-status-connecting">
+                <div className="flex items-center gap-2 text-white">
                   <Loader2 className="animate-spin" />
                   Connecting...
                 </div>
               ) : state === "listening" ? (
-                <span className="text-status-listening font-semibold">Listening...</span>
+                <span className="text-white font-semibold">Listening...</span>
               ) : state === "speaking" ? (
                 <span className="text-white font-semibold">Speaking...</span>
               ) : (
