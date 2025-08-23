@@ -1,27 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Loader2 } from "lucide-react";
-import Vapi from "@vapi-ai/web";
 
 // Call state machine
 type CallState = "idle" | "connecting" | "listening" | "speaking";
 
-const ASSISTANT_ID = "9bdc2710-e0c2-4b4b-b54e-90712824d089";
-const PUBLIC_KEY = "4a9c9a16-1d37-4269-a2cb-36cfa6aae4f5";
+const AGENT_ID = "agent_7901k39vv8j4ffda7mtpk4vfas54";
 
 const Index = () => {
   const [state, setState] = useState<CallState>("idle");
-  const vapiRef = useRef<any>(null);
-
-  useEffect(() => {
-    // Initialize Vapi Web SDK (installed dependency)
-    try {
-      vapiRef.current = new (Vapi as any)(PUBLIC_KEY);
-    } catch (e) {
-      // SDK init is best-effort; embed widget will still work
-      // console.warn("Vapi SDK init error:", e);
-    }
-  }, []);
+  const convaiRef = useRef<any>(null);
 
   const statusText = useMemo(() => {
     switch (state) {
@@ -64,32 +52,28 @@ const Index = () => {
   async function startCall() {
     setState("connecting");
 
-    // Prefer the embed widget if present
-    const widgetEl = document.querySelector("vapi-widget") as any;
-
     try {
-      if (widgetEl?.start) {
-        await widgetEl.start();
-        // Assume widget sets up the call; we'll enter listening state
-        setState("listening");
-      } else if (vapiRef.current?.start) {
-        // Fallback to SDK usage if widget is not available yet
-        await (vapiRef.current as any).start({ assistantId: ASSISTANT_ID });
+      const convaiEl = document.querySelector("elevenlabs-convai") as any;
+      if (convaiEl?.startConversation) {
+        await convaiEl.startConversation();
         setState("listening");
       } else {
         setState("idle");
       }
     } catch (err) {
+      console.error("Failed to start conversation:", err);
       setState("idle");
     }
   }
 
   async function endCall() {
     try {
-      const widgetEl = document.querySelector("vapi-widget") as any;
-      if (widgetEl?.end) await widgetEl.end();
-      if ((vapiRef.current as any)?.hangUp) await (vapiRef.current as any).hangUp();
-      if ((vapiRef.current as any)?.end) await (vapiRef.current as any).end();
+      const convaiEl = document.querySelector("elevenlabs-convai") as any;
+      if (convaiEl?.endConversation) {
+        await convaiEl.endConversation();
+      }
+    } catch (err) {
+      console.error("Failed to end conversation:", err);
     } finally {
       setState("idle");
     }
@@ -104,24 +88,30 @@ const Index = () => {
     // Do nothing for connecting/speaking states
   }
 
-  // Optional: simulate speaking state once audio response begins via widget custom events if present
+  // Listen for ElevenLabs ConvAI events to update UI state
   useEffect(() => {
-    const widgetEl = document.querySelector("vapi-widget") as any;
-    if (!widgetEl) return;
+    const convaiEl = document.querySelector("elevenlabs-convai") as any;
+    if (!convaiEl) return;
+
     const onSpeakingStart = () => setState((s) => (s !== "idle" ? "speaking" : s));
     const onListening = () => setState((s) => (s !== "idle" ? "listening" : s));
+    const onDisconnect = () => setState("idle");
 
     try {
-      widgetEl.addEventListener?.("assistant-speaking-start", onSpeakingStart);
-      widgetEl.addEventListener?.("assistant-speaking-end", onListening);
+      convaiEl.addEventListener?.("conversation-started", onListening);
+      convaiEl.addEventListener?.("agent-speaking-started", onSpeakingStart);
+      convaiEl.addEventListener?.("agent-speaking-ended", onListening);
+      convaiEl.addEventListener?.("conversation-ended", onDisconnect);
     } catch {
       // best-effort only
     }
 
     return () => {
       try {
-        widgetEl.removeEventListener?.("assistant-speaking-start", onSpeakingStart);
-        widgetEl.removeEventListener?.("assistant-speaking-end", onListening);
+        convaiEl.removeEventListener?.("conversation-started", onListening);
+        convaiEl.removeEventListener?.("agent-speaking-started", onSpeakingStart);
+        convaiEl.removeEventListener?.("agent-speaking-ended", onListening);
+        convaiEl.removeEventListener?.("conversation-ended", onDisconnect);
       } catch {}
     };
   }, []);
@@ -179,12 +169,11 @@ const Index = () => {
         </section>
       </main>
 
-      {/* Hidden Vapi widget (provides the voice assistant) */}
-      <vapi-widget
-        assistant-id={ASSISTANT_ID}
-        public-key={PUBLIC_KEY}
+      {/* Hidden ElevenLabs ConvAI widget (provides the voice assistant) */}
+      <elevenlabs-convai
+        agent-id={AGENT_ID}
         style={{ display: "none" }}
-      ></vapi-widget>
+      ></elevenlabs-convai>
     </div>
   );
 };
