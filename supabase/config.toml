@@ -2,3 +2,6 @@ project_id = "wjyimtqxpeoxkhxdgsgz"
 
 [functions.proxy-crewai]
 verify_jwt = false
+
+[functions.elevenlabs-auth]
+verify_jwt = false

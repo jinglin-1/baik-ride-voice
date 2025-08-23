@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Loader2 } from "lucide-react";
 import { useConversation } from "@elevenlabs/react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Call state machine
 type CallState = "idle" | "listening" | "speaking";
@@ -59,9 +60,23 @@ const Index = () => {
   async function startCall() {
     console.log("Starting ElevenLabs conversation...");
     try {
-      // For public agents, use conversationToken approach
+      // Get signed URL from our edge function
+      const { data, error } = await supabase.functions.invoke('elevenlabs-auth', {
+        body: { agentId: AGENT_ID }
+      });
+
+      if (error) {
+        console.error("Failed to get signed URL:", error);
+        throw new Error(`Authentication failed: ${error.message}`);
+      }
+
+      if (!data?.signedUrl) {
+        throw new Error("No signed URL received from authentication service");
+      }
+
+      console.log("Got signed URL, starting session...");
       await conversation.startSession({ 
-        conversationToken: AGENT_ID 
+        signedUrl: data.signedUrl 
       });
       console.log("ElevenLabs conversation started successfully");
     } catch (err) {
