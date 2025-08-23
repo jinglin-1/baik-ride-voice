@@ -59,27 +59,13 @@ const Index = () => {
   async function startCall() {
     console.log("Starting ElevenLabs conversation...");
     try {
-      // For public agents, use the signedUrl approach
-      const response = await fetch('/api/elevenlabs/signed-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: AGENT_ID })
+      // For public agents, use conversationToken approach
+      await conversation.startSession({ 
+        conversationToken: AGENT_ID 
       });
-      const { signedUrl } = await response.json();
-      
-      await conversation.startSession({ signedUrl });
       console.log("ElevenLabs conversation started successfully");
     } catch (err) {
       console.error("Failed to start ElevenLabs conversation:", err);
-      // Fallback: try direct agent ID approach for testing
-      try {
-        await conversation.startSession({ 
-          conversationToken: `agent_${AGENT_ID}`,
-          agentId: AGENT_ID 
-        } as any);
-      } catch (fallbackErr) {
-        console.error("Fallback approach also failed:", fallbackErr);
-      }
     }
   }
 
