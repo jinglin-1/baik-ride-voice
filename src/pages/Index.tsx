@@ -136,7 +136,7 @@ const Index = () => {
           <img
             src="/lovable-uploads/fad0ebad-1ecd-45e4-b861-211a6115ef9a.png"
             alt="Baik logo - AI cycling assistant"
-            className="mx-auto mb-8 h-20 md:h-24 w-auto"
+            className="mx-auto mb-8 h-28 md:h-32 w-auto"
             loading="eager"
           />
           <p
