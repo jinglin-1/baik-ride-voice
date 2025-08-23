@@ -51,13 +51,23 @@ const Index = () => {
 
   async function startCall() {
     setState("connecting");
+    console.log("Attempting to start conversation...");
 
     try {
       const convaiEl = document.querySelector("elevenlabs-convai") as any;
+      console.log("ConvAI element found:", !!convaiEl);
+      console.log("ConvAI methods available:", {
+        startConversation: typeof convaiEl?.startConversation,
+        endConversation: typeof convaiEl?.endConversation
+      });
+
       if (convaiEl?.startConversation) {
+        console.log("Calling startConversation...");
         await convaiEl.startConversation();
+        console.log("Conversation started successfully");
         setState("listening");
       } else {
+        console.error("ConvAI element not found or startConversation method unavailable");
         setState("idle");
       }
     } catch (err) {
@@ -90,30 +100,53 @@ const Index = () => {
 
   // Listen for ElevenLabs ConvAI events to update UI state
   useEffect(() => {
-    const convaiEl = document.querySelector("elevenlabs-convai") as any;
-    if (!convaiEl) return;
+    console.log("Setting up ElevenLabs ConvAI event listeners...");
+    
+    const setupListeners = () => {
+      const convaiEl = document.querySelector("elevenlabs-convai") as any;
+      console.log("ConvAI element in useEffect:", !!convaiEl);
+      
+      if (!convaiEl) {
+        console.log("ConvAI element not found, retrying in 1 second...");
+        setTimeout(setupListeners, 1000);
+        return;
+      }
 
-    const onSpeakingStart = () => setState((s) => (s !== "idle" ? "speaking" : s));
-    const onListening = () => setState((s) => (s !== "idle" ? "listening" : s));
-    const onDisconnect = () => setState("idle");
+      const onSpeakingStart = () => {
+        console.log("Agent started speaking");
+        setState((s) => (s !== "idle" ? "speaking" : s));
+      };
+      const onListening = () => {
+        console.log("Agent listening");
+        setState((s) => (s !== "idle" ? "listening" : s));
+      };
+      const onDisconnect = () => {
+        console.log("Conversation ended");
+        setState("idle");
+      };
 
-    try {
-      convaiEl.addEventListener?.("conversation-started", onListening);
-      convaiEl.addEventListener?.("agent-speaking-started", onSpeakingStart);
-      convaiEl.addEventListener?.("agent-speaking-ended", onListening);
-      convaiEl.addEventListener?.("conversation-ended", onDisconnect);
-    } catch {
-      // best-effort only
-    }
-
-    return () => {
       try {
-        convaiEl.removeEventListener?.("conversation-started", onListening);
-        convaiEl.removeEventListener?.("agent-speaking-started", onSpeakingStart);
-        convaiEl.removeEventListener?.("agent-speaking-ended", onListening);
-        convaiEl.removeEventListener?.("conversation-ended", onDisconnect);
-      } catch {}
+        convaiEl.addEventListener?.("conversation-started", onListening);
+        convaiEl.addEventListener?.("agent-speaking-started", onSpeakingStart);
+        convaiEl.addEventListener?.("agent-speaking-ended", onListening);
+        convaiEl.addEventListener?.("conversation-ended", onDisconnect);
+        console.log("Event listeners attached successfully");
+      } catch (error) {
+        console.error("Failed to attach event listeners:", error);
+      }
+
+      return () => {
+        try {
+          convaiEl.removeEventListener?.("conversation-started", onListening);
+          convaiEl.removeEventListener?.("agent-speaking-started", onSpeakingStart);
+          convaiEl.removeEventListener?.("agent-speaking-ended", onListening);
+          convaiEl.removeEventListener?.("conversation-ended", onDisconnect);
+        } catch {}
+      };
     };
+
+    const cleanup = setupListeners();
+    return cleanup;
   }, []);
 
   return (
