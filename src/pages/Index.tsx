@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Call state machine
 type CallState = "idle" | "listening" | "speaking";
 
-const AGENT_ID = "7901k39vv8j4ffda7mtpk4vfas54";
+const AGENT_ID = "agent_7901k39vv8j4ffda7mtpk4vfas54";
 
 const Index = () => {
   const conversation = useConversation({
