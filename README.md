@@ -1,8 +1,8 @@
-# Welcome to Baik
+# Say Hello to Baik, your AI cycling assistant
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/8a15f0c3-dd9c-45fd-aa4f-3b62c2827364
+**URL**: [https://baik-ride-voice.lovable.app/](url)
 
 ## What is Baik?
 
@@ -21,3 +21,9 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+
+Additional integrations:
+- ElevenLabs Conversational AI
+- Crew AI
+- Weaviate Vector DB
+- Supabase Edge Functions
